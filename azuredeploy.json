@@ -5,7 +5,7 @@
       "adminUsername": {
         "type": "string",
         "metadata": {
-          "description": "User name for the Virtual Machine."
+          "description": "Username for the Virtual Machine."
         }
       },
       "adminPassword": {
@@ -20,63 +20,59 @@
           "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
         }
       },
-      "ubuntuOSVersion": {
+      "windowsOSVersion": {
         "type": "string",
-        "defaultValue": "16.04.0-LTS",
+        "defaultValue": "2016-Datacenter",
         "allowedValues": [
-          "12.04.5-LTS",
-          "14.04.5-LTS",
-          "15.10",
-          "16.04.0-LTS"
+          "2008-R2-SP1",
+          "2012-Datacenter",
+          "2012-R2-Datacenter",
+          "2016-Nano-Server",
+          "2016-Datacenter-with-Containers",
+          "2016-Datacenter"
         ],
         "metadata": {
-          "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+          "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
         }
       }
     },
     "variables": {
-      "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'salinuxvm')]",
-      "imagePublisher": "Canonical",
-      "imageOffer": "UbuntuServer",
+      "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'sawinvm')]",
       "nicName": "myVMNic",
       "addressPrefix": "10.0.0.0/16",
       "subnetName": "Subnet",
       "subnetPrefix": "10.0.0.0/24",
-      "storageAccountType": "Standard_LRS",
       "publicIPAddressName": "myPublicIP",
-      "publicIPAddressType": "Dynamic",
-      "vmName": "MyUbuntuVM",
-      "vmSize": "Standard_A1",
+      "vmName": "SimpleWinVM",
       "virtualNetworkName": "MyVNET",
-      "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
-      "subnetRef": "[concat(variables('vnetID'),'/subnets/',variables('subnetName'))]"
+      "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
     },
     "resources": [
       {
         "type": "Microsoft.Storage/storageAccounts",
         "name": "[variables('storageAccountName')]",
-        "apiVersion": "2017-06-01",
+        "apiVersion": "2016-01-01",
         "location": "[resourceGroup().location]",
         "sku": {
-          "name": "[variables('storageAccountType')]"
+          "name": "Standard_LRS"
         },
         "kind": "Storage",
         "properties": {}
       },
       {
-        "apiVersion": "2017-04-01",
+        "apiVersion": "2016-03-30",
         "type": "Microsoft.Network/publicIPAddresses",
         "name": "[variables('publicIPAddressName')]",
         "location": "[resourceGroup().location]",
         "properties": {
-          "publicIPAllocationMethod": "[variables('publicIPAddressType')]",
+          "publicIPAllocationMethod": "Dynamic",
           "dnsSettings": {
             "domainNameLabel": "[parameters('dnsLabelPrefix')]"
           }
         }
       },
       {
-        "apiVersion": "2017-04-01",
+        "apiVersion": "2016-03-30",
         "type": "Microsoft.Network/virtualNetworks",
         "name": "[variables('virtualNetworkName')]",
         "location": "[resourceGroup().location]",
@@ -97,7 +93,7 @@
         }
       },
       {
-        "apiVersion": "2017-04-01",
+        "apiVersion": "2016-03-30",
         "type": "Microsoft.Network/networkInterfaces",
         "name": "[variables('nicName')]",
         "location": "[resourceGroup().location]",
@@ -133,7 +129,7 @@
         ],
         "properties": {
           "hardwareProfile": {
-            "vmSize": "[variables('vmSize')]"
+            "vmSize": "Standard_A2"
           },
           "osProfile": {
             "computerName": "[variables('vmName')]",
@@ -142,9 +138,9 @@
           },
           "storageProfile": {
             "imageReference": {
-              "publisher": "[variables('imagePublisher')]",
-              "offer": "[variables('imageOffer')]",
-              "sku": "[parameters('ubuntuOSVersion')]",
+              "publisher": "MicrosoftWindowsServer",
+              "offer": "WindowsServer",
+              "sku": "[parameters('windowsOSVersion')]",
               "version": "latest"
             },
             "osDisk": {
@@ -168,7 +164,7 @@
           "diagnosticsProfile": {
             "bootDiagnostics": {
               "enabled": true,
-              "storageUri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob)]"
+              "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
             }
           }
         }
@@ -178,10 +174,6 @@
       "hostname": {
         "type": "string",
         "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
-      },
-      "sshCommand": {
-        "type": "string",
-        "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
       }
     }
   }

@@ -1,15 +1,15 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
       "adminUsername": {
-        "value": "algibbon"
+        "value": "GEN-USER"
       },
       "adminPassword": {
-        "value": "Complexxx123"
+        "value": "GEN-PASSWORD"
       },
       "dnsLabelPrefix": {
-        "value": "ag-dns-linux-test"
+        "value": "GEN-UNIQUE"
       }
     }
   }
