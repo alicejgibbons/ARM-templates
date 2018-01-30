@@ -2,13 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "adminUsername": {
+      "userName": {
         "type": "string",
         "metadata": {
           "description": "User name for the Virtual Machine."
         }
       },
-      "adminPassword": {
+      "password": {
         "type": "securestring",
         "metadata": {
           "description": "Password for the Virtual Machine."
@@ -32,6 +32,12 @@
         "metadata": {
           "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
         }
+      },
+      "newVMName":{
+        "type": "string",
+        "metadata": {
+          "description": "Name of the Virtual Machine."
+        }
       }
     },
     "variables": {
@@ -45,7 +51,6 @@
       "storageAccountType": "Standard_LRS",
       "publicIPAddressName": "myPublicIP",
       "publicIPAddressType": "Dynamic",
-      "vmName": "MyUbuntuVM",
       "vmSize": "Standard_A1",
       "virtualNetworkName": "MyVNET",
       "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
@@ -125,7 +130,7 @@
       {
         "apiVersion": "2017-03-30",
         "type": "Microsoft.Compute/virtualMachines",
-        "name": "[variables('vmName')]",
+        "name": "[parameters('newVMName')]",
         "location": "[resourceGroup().location]",
         "dependsOn": [
           "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
@@ -136,9 +141,9 @@
             "vmSize": "[variables('vmSize')]"
           },
           "osProfile": {
-            "computerName": "[variables('vmName')]",
-            "adminUsername": "[parameters('adminUsername')]",
-            "adminPassword": "[parameters('adminPassword')]"
+            "computerName": "[parameters('newVMName')]",
+            "adminUsername": "[parameters('userName')]",
+            "adminPassword": "[parameters('password')]"
           },
           "storageProfile": {
             "imageReference": {
@@ -181,7 +186,7 @@
       },
       "sshCommand": {
         "type": "string",
-        "value": "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
+        "value": "[concat('ssh ', parameters('userName'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
       }
     }
   }
