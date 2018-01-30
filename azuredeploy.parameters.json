@@ -3,13 +3,13 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
       "adminUsername": {
-        "value": "ghuser"
+        "value": "algibbon"
       },
       "adminPassword": {
-        "value": "GEN-PASSWORD"
+        "value": "Complexxx123"
       },
       "dnsLabelPrefix": {
-        "value": "GEN-UNIQUE"
+        "value": "ag-dns-linux-test"
       }
     }
   }
